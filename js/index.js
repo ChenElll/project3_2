@@ -53,8 +53,7 @@ document
 
 //--------------------login --------------------
 
-// Creating a Map to store the number of login attempts for each user
-// const loginAttempts = new Map();
+
 function loginAttempt() {
   const fxhr = new FXMLHttpRequest();
 
@@ -65,9 +64,19 @@ function loginAttempt() {
   fxhr.send({ username: username, password: password }, (message) => {
     alert(message);
   });
-
-
+  todos = getUserTasklist();
+  showTodo("all");
 }
+
+let logoutBtn = document.querySelector(".logoutButton")
+logoutBtn.addEventListener("click",()=>{
+ 
+  const fxhr = new FXMLHttpRequest();
+  fxhr.open("POST", "");
+  fxhr.send({ logout: "logout" }, (message) => {
+    alert(message);
+  });
+})
 
 //---------------todoList------------------------
 
@@ -78,17 +87,17 @@ const taskInput = document.querySelector(".task-input input"),
 
 let editId,
   isEditTask = false,
-  todos = getUserTasklist();
+  todos = [];
 
+//get all
 function getUserTasklist() {
   let userTasklist = [];
 
   const fxhr = new FXMLHttpRequest();
   fxhr.open("GET", "");
-  fxhr.send({ "tasks": "tasks" }, (tasklist) => {
+  fxhr.send({ tasks: "tasks" }, (tasklist) => {
     userTasklist = tasklist;
   });
-
   return userTasklist;
 }
 
@@ -133,6 +142,17 @@ function showTodo(filter) {
 }
 showTodo("all");
 
+function showMenu(selectedTask) {
+  let menuDiv = selectedTask.parentElement.lastElementChild;
+  menuDiv.classList.add("show");
+  document.addEventListener("click", (e) => {
+    if (e.target.tagName != "I" || e.target != selectedTask) {
+      menuDiv.classList.remove("show");
+    }
+  });
+}
+
+//update
 function updateStatus(selectedTask) {
   // Retrieve the task name element associated with the selected checkbox
   let taskName = selectedTask.parentElement.lastElementChild;
@@ -154,11 +174,76 @@ function updateStatus(selectedTask) {
 
   const fxhr = new FXMLHttpRequest();
 
-  fxhr.open("POST", "");
-  fxhr.send({ "tasks": todos });
+  fxhr.open("PUT", "");
+  fxhr.send({ tasks : todos });
 
   // Persist the updated todos array to the browser's local storage
   // localStorage.setItem("todo-list", JSON.stringify(todos));
 }
 
+function editTask(taskId, textName) {
+  editId = taskId;
+  isEditTask = true;
+  taskInput.value = textName;
+  taskInput.focus();
+  taskInput.classList.add("active");
+}
 
+// function deleteTask(deleteId, filter) {
+//   isEditTask = false;
+
+//   const fxhr = new FXMLHttpRequest();
+
+//   fxhr.open("DELETE", "");
+//   fxhr.send({ tasks: todos });
+//   // todos.splice(deleteId, 1);
+//   // localStorage.setItem("todo-list", JSON.stringify(todos));
+
+//   showTodo(filter);
+// }
+
+
+
+
+
+
+
+taskInput.addEventListener("keyup", e => {
+  let userName;
+
+  const fxhr = new FXMLHttpRequest();
+  fxhr.open("GET", "");
+  fxhr.send({ logedin: "logedinUsername" }, (anss) => {
+    userName = anss;
+  });
+
+  let userTask = taskInput.value.trim();
+  if(e.key == "Enter" && userTask) {
+      if(!isEditTask) {
+          todos = !todos ? [] : todos;
+          let taskInfo = {username: userName, name: userTask, status: "pending"};
+          todos.push(taskInfo);
+
+          const fxhr = new FXMLHttpRequest();
+          fxhr.open("POST", "");
+          fxhr.send({ task: todos[todos.length-1] });
+
+
+      } else {
+          isEditTask = false;
+          let oldTask = todos[editId];
+          todos[editId].name = userTask;///dont forget
+
+          const fxhr = new FXMLHttpRequest();
+          fxhr.open("PUT", "");
+          fxhr.send({ task: todos[editId], old: oldTask });
+      }
+      taskInput.value = "";
+
+
+      //localStorage.setItem("todo-list", JSON.stringify(todos));
+
+
+      showTodo(document.querySelector("span.active").id);
+  }
+});

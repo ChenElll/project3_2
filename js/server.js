@@ -20,11 +20,16 @@ class server {
         } else {
           dispatcher("user alredy exist");
         }
-      } else if (recivedData["body"].tasks) {
-        this.updateUsertasks(recivedData["body"].tasks);
+      } else if (recivedData["body"].task) {
+        this.addTask(recivedData["body"].task);
+      }else if (recivedData["body"].logout) {
+        if(this.logout()){
+          dispatcher("logout");
+        }
+
       }
     } else if (recivedData["d"].method === "GET") {
-      if (recivedData["body"].username) {
+      if (recivedData["body"].username && recivedData["body"].password) {
         if (
           this.getUserData(
             recivedData["body"].username,
@@ -38,10 +43,31 @@ class server {
       } else if (recivedData["body"].tasks) {
         let taskslist = this.getUserTaskslist();
         dispatcher(taskslist);
+      }else if (recivedData["body"].logedin){
+        dispatcher(this.getLogedInUsername());
+
+
+      }
+    } else if (recivedData["d"].method === "PUT") {
+      if (recivedData["body"].tasks) {
+        this.updateUsertasks(recivedData["body"].tasks);
+      }else if (recivedData["body"].task){
+        this.updateTask(recivedData["body"].task, recivedData["body"].old);
       }
     }
   }
 
+  logout(){
+    this.dbapi.log_out();
+    let currentPage = "sign-in";
+    document.querySelector(".active").classList.remove("active");
+    document.getElementById(currentPage).classList.add("active");
+    console.log(currentPage);
+    history.pushState({}, currentPage, `#${currentPage}`);
+    document.getElementById(currentPage).dispatchEvent(app.show);
+    
+
+  }
   addUser(username, password) {
     if (!this.dbapi.add_user({ username, password })) {
       return false;
@@ -59,6 +85,9 @@ class server {
     return false;
   }
 
+  getLogedInUsername(){
+    return this.dbapi.get_logedin_username();
+  }
   getUserData(username, password) {
     if (!this.validation(username, password)) {
       window.location.reload();
@@ -80,7 +109,7 @@ class server {
   }
 
   getUserTaskslist() {
-    let taskslist = this.dbapi.get_user_taskslist(this.logedinUsername);
+    let taskslist = this.dbapi.get_user_taskslist(this.getLogedInUsername());
     return taskslist;
   }
 
@@ -93,5 +122,14 @@ class server {
    this.dbapi.update_user_taskslist(this.logedinUsername, userTaskslist);
 
    console.log("update list" , userTaskslist);
+  }
+
+  addTask(task) {
+    this.dbapi.add_task(task);
+  }
+
+  updateTask(newTask, oldTask) {
+    this.dbapi.update_task(newTask, oldTask);
+
   }
 }

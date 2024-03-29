@@ -27,10 +27,10 @@ class db_api {
   }
 
   save_logedin_username(username) {
-    localStorage.setItem("logedin_user",username);
+    localStorage.setItem("logedin_user", JSON.stringify(username));
   }
-  get_logedin_username(){
-    return localStorage.getItem("logedin_user");
+  get_logedin_username() {
+    return JSON.parse(localStorage.getItem(  "logedin_user"));
   }
 
   get_user_data(username_to_get) {
@@ -57,44 +57,59 @@ class db_api {
     return users_tasks;
   }
 
-  get_all_users_taskslist(){
+  get_all_users_taskslist() {
     this.tasks = JSON.parse(localStorage.getItem("tasks"));
     if (!this.tasks) {
       this.tasks = [];
     }
     return this.tasks;
-
   }
-  
+
   //delete the old user's tasks list and push the new list
-  update_user_taskslist(username, updatedList){
+  update_user_taskslist(username, updatedList) {
     this.delete_all_user_tasks(username);
     this.save_user_taskslist(updatedList);
   }
-  save_user_taskslist(userTaskslist){
+  save_user_taskslist(userTaskslist) {
     this.tasks = JSON.parse(localStorage.getItem("tasks"));
-    for (const task of userTaskslist){
+    for (const task of userTaskslist) {
       this.tasks.push(task);
     }
     localStorage.setItem("tasks", JSON.stringify(this.tasks));
-
   }
 
-add_task(task){
-  this.tasks = JSON.parse(localStorage.getItem("tasks"));
-  this.tasks.push(task);
-  localStorage.setItem("tasks", JSON.stringify(this.tasks));
+  add_task(task) {
+    this.tasks = this.get_all_users_taskslist();
+    this.tasks.push(task);
+    localStorage.setItem("tasks", JSON.stringify(this.tasks));
+  }
 
-
-}
-delete_all_user_tasks(username){
-  this.get_all_users_taskslist();
-  
-  for (const task of this.tasks) {
-    if (task.username == username) {
-      this.tasks.splice(task.index, 1);
+  update_task(newTask, oldTask) {
+    this.tasks = JSON.parse(localStorage.getItem("tasks"));
+    for (const task of this.tasks) {
+      if (
+        task.username == oldTask.username &&
+        task.username == newTask.username &&
+        task.name == oldTask.name &&
+        task.status == oldTask.status
+      ) {
+        task = newTask;
+        localStorage.setItem("tasks", JSON.stringify(this.tasks));
+        break;
+      }
     }
   }
-}
-  
+  delete_all_user_tasks(username) {
+    this.get_all_users_taskslist();
+
+    for (const task of this.tasks) {
+      if (task.username == username) {
+        this.tasks.splice(task.index, 1);
+      }
+    }
+  }
+
+  log_out(){
+    localStorage.removeItem("logedin_user");
+  }
 }
