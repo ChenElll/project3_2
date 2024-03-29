@@ -26,6 +26,13 @@ class db_api {
     return false;
   }
 
+  save_logedin_username(username) {
+    localStorage.setItem("logedin_user",username);
+  }
+  get_logedin_username(){
+    return localStorage.getItem("logedin_user");
+  }
+
   get_user_data(username_to_get) {
     let users = JSON.parse(localStorage.getItem("users"));
     for (const user of users) {
@@ -50,11 +57,44 @@ class db_api {
     return users_tasks;
   }
 
+  get_all_users_taskslist(){
+    this.tasks = JSON.parse(localStorage.getItem("tasks"));
+    if (!this.tasks) {
+      this.tasks = [];
+    }
+    return this.tasks;
 
-
-  add_task(username_to_add_task,new_task) {
-    this.tasks.push({username: username_to_add_task, task: new_task});
-    return this.get_user_taskslist(username_to_add_task);
   }
+  
+  //delete the old user's tasks list and push the new list
+  update_user_taskslist(username, updatedList){
+    this.delete_all_user_tasks(username);
+    this.save_user_taskslist(updatedList);
+  }
+  save_user_taskslist(userTaskslist){
+    this.tasks = JSON.parse(localStorage.getItem("tasks"));
+    for (const task of userTaskslist){
+      this.tasks.push(task);
+    }
+    localStorage.setItem("tasks", JSON.stringify(this.tasks));
+
+  }
+
+add_task(task){
+  this.tasks = JSON.parse(localStorage.getItem("tasks"));
+  this.tasks.push(task);
+  localStorage.setItem("tasks", JSON.stringify(this.tasks));
+
+
+}
+delete_all_user_tasks(username){
+  this.get_all_users_taskslist();
+  
+  for (const task of this.tasks) {
+    if (task.username == username) {
+      this.tasks.splice(task.index, 1);
+    }
+  }
+}
   
 }

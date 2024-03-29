@@ -1,11 +1,10 @@
 class server {
   dbapi;
-  logedinUser;
+  logedinUsername;
 
   constructor() {
     this.dbapi = new db_api();
   }
-
 
   prossess_data(data, dispatcher = (x) => {}) {
     let recivedData = JSON.parse(data);
@@ -21,7 +20,9 @@ class server {
         } else {
           dispatcher("user alredy exist");
         }
-      } 
+      } else if (recivedData["body"].tasks) {
+        this.updateUsertasks(recivedData["body"].tasks);
+      }
     } else if (recivedData["d"].method === "GET") {
       if (recivedData["body"].username) {
         if (
@@ -34,7 +35,10 @@ class server {
         } else {
           dispatcher("Incorrect username or password");
         }
-      } 
+      } else if (recivedData["body"].tasks) {
+        let taskslist = this.getUserTaskslist();
+        dispatcher(taskslist);
+      }
     }
   }
 
@@ -60,7 +64,9 @@ class server {
       window.location.reload();
       return false;
     } else {
-      this.logedinUser = this.dbapi.get_user_data(username);
+      this.dbapi.save_logedin_username(username);
+      this.logedinUsername = username;
+      //this.logedinUser = this.dbapi.get_user_data(username);
 
       let currentPage = "todo-list";
       document.querySelector(".active").classList.remove("active");
@@ -68,10 +74,24 @@ class server {
       console.log(currentPage);
       history.pushState({}, currentPage, `#${currentPage}`);
       document.getElementById(currentPage).dispatchEvent(app.show);
-      initTodos(username);
 
       return true;
     }
   }
 
+  getUserTaskslist() {
+    let taskslist = this.dbapi.get_user_taskslist(this.logedinUsername);
+    return taskslist;
+  }
+
+  getAllTaskslist() {
+    let all_users_tasks = this.dbapi.get_all_users_taskslist();
+    return all_users_tasks;
+  }
+
+  updateUsertasks(userTaskslist) {
+   this.dbapi.update_user_taskslist(this.logedinUsername, userTaskslist);
+
+   console.log("update list" , userTaskslist);
+  }
 }
