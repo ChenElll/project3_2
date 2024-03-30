@@ -30,7 +30,7 @@ class db_api {
     localStorage.setItem("logedin_user", JSON.stringify(username));
   }
   get_logedin_username() {
-    return JSON.parse(localStorage.getItem(  "logedin_user"));
+    return JSON.parse(localStorage.getItem("logedin_user"));
   }
 
   get_user_data(username_to_get) {
@@ -67,9 +67,10 @@ class db_api {
 
   //delete the old user's tasks list and push the new list
   update_user_taskslist(username, updatedList) {
-    this.delete_all_user_tasks(username);
+    this.delete_user_all_tasks(username);
     this.save_user_taskslist(updatedList);
   }
+
   save_user_taskslist(userTaskslist) {
     this.tasks = JSON.parse(localStorage.getItem("tasks"));
     for (const task of userTaskslist) {
@@ -99,17 +100,22 @@ class db_api {
       }
     }
   }
-  delete_all_user_tasks(username) {
+  delete_task(taskToDelete) {
+    //fill this.tasks
+    this.get_all_users_taskslist();
+    this.tasks = this.tasks.filter((task) => task.username!== taskToDelete.username || task.name!== taskToDelete.name || task.status!== taskToDelete.status);
+    localStorage.setItem("tasks", JSON.stringify(this.tasks));
+  }
+  delete_user_all_tasks(username) {
     this.get_all_users_taskslist();
 
-    for (const task of this.tasks) {
-      if (task.username == username) {
-        this.tasks.splice(task.index, 1);
-      }
-    }
+    // Filter out tasks that do not belong to the specified username
+    this.tasks = this.tasks.filter((task) => task.username !== username);
+
+    localStorage.setItem("tasks", JSON.stringify(this.tasks));
   }
 
-  log_out(){
+  log_out() {
     localStorage.removeItem("logedin_user");
   }
 }

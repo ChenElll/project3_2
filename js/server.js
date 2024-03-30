@@ -54,6 +54,15 @@ class server {
       }else if (recivedData["body"].task){
         this.updateTask(recivedData["body"].task, recivedData["body"].old);
       }
+    } else if (recivedData["d"].method === "DELETE") {
+        if (recivedData["body"].tasks) {
+          this.deleteUserAllTasks();
+        } else if (recivedData["body"].task) {
+          this.deleteTask(recivedData["body"].toDelete);
+          let taskslist = this.getUserTaskslist();
+          dispatcher(taskslist);
+        }
+        
     }
   }
 
@@ -131,5 +140,14 @@ class server {
   updateTask(newTask, oldTask) {
     this.dbapi.update_task(newTask, oldTask);
 
+  }
+
+  deleteTask(taskToDelete){
+    this.dbapi.delete_task(taskToDelete);
+  }
+  deleteUserAllTasks(){
+    this.logedinUsername = this.getLogedInUsername(); 
+    this.dbapi.delete_user_all_tasks(this.logedinUsername);
+    console.log("delete all tasks");
   }
 }

@@ -189,21 +189,33 @@ function editTask(taskId, textName) {
   taskInput.classList.add("active");
 }
 
-// function deleteTask(deleteId, filter) {
-//   isEditTask = false;
+function deleteTask(deleteId, filter) {
+  isEditTask = false;
 
-//   const fxhr = new FXMLHttpRequest();
+  let taskToDelete =todos[deleteId];
 
-//   fxhr.open("DELETE", "");
-//   fxhr.send({ tasks: todos });
-//   // todos.splice(deleteId, 1);
-//   // localStorage.setItem("todo-list", JSON.stringify(todos));
+  const fxhr = new FXMLHttpRequest();
+  fxhr.open("DELETE", "");
+  fxhr.send({ task: todos, toDelete: taskToDelete }, (tasklist) => {
+    todos = tasklist;
+  });
 
-//   showTodo(filter);
-// }
+  // todos.splice(deleteId, 1);
+  // localStorage.setItem("todo-list", JSON.stringify(todos));
+
+  showTodo(filter);
+}
 
 
+clearAll.addEventListener("click", () => {
+  isEditTask = false;
 
+  const fxhr = new FXMLHttpRequest();
+  fxhr.open("DELETE", "");
+  fxhr.send({ tasks : "all tasks" });
+
+  showTodo()
+});
 
 
 
