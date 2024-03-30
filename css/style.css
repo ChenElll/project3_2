@@ -116,6 +116,7 @@ body{
 }
 .wrapper{
   max-width: 405px;
+  max-height: 500px;
   padding: 28px 0 30px;
   margin: 137px auto;
   background: #fff;
