@@ -4,13 +4,18 @@ class db_api {
 
   add_user(new_user) {
     this.users = JSON.parse(localStorage.getItem("users"));
-    if (this.is_user_exists(new_user)) {
-      return false;
+    if (!this.users) {
+      this.users = []; // Initialize as an empty array if null
     }
-    this.users.push(new_user);
-    localStorage.setItem("users", JSON.stringify(this.users));
-    return true;
+  if (this.is_user_exists(new_user)) {
+      return false;
+   }
+  this.users.push(new_user);
+  localStorage.setItem("users", JSON.stringify(this.users));
+  return true;
   }
+
+ 
 
   is_user_exists(user_to_serch) {
     let users = JSON.parse(localStorage.getItem("users"));
