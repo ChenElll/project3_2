@@ -105,11 +105,11 @@ class db_api {
       if (
         task.username == oldTask.username &&
         task.username == newTask.username &&
-        task.name == oldTask.name &&
         task.status == oldTask.status
       ) {
-        task = newTask;
-        localStorage.setItem("tasks", JSON.stringify(this.tasks));
+        this.add_task(newTask);
+        this.delete_task(task);
+        // localStorage.setItem("tasks", JSON.stringify(this.tasks));
         break;
       }
     }
