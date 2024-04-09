@@ -5,7 +5,7 @@ class db_api {
   add_user(new_user) {
     this.users = JSON.parse(localStorage.getItem("users"));
     if (!this.users) {
-      this.users = []; // Initialize as an empty array if null
+      this.users = []; 
     }
   if (this.is_user_exists(new_user)) {
       return false;
@@ -40,6 +40,9 @@ class db_api {
 
   get_user_data(username_to_get) {
     let users = JSON.parse(localStorage.getItem("users"));
+    if (!users) {
+      users = []; // Initialize as an empty array if null
+    }
     for (const user of users) {
       if (user.username == username_to_get) {
         return user;
@@ -78,6 +81,9 @@ class db_api {
 
   save_user_taskslist(userTaskslist) {
     this.tasks = JSON.parse(localStorage.getItem("tasks"));
+    if (!this.tasks) {
+      this.tasks = [];
+    }
     for (const task of userTaskslist) {
       this.tasks.push(task);
     }
@@ -92,6 +98,9 @@ class db_api {
 
   update_task(newTask, oldTask) {
     this.tasks = JSON.parse(localStorage.getItem("tasks"));
+    if (!this.tasks) {
+      this.tasks = [];
+    }
     for (const task of this.tasks) {
       if (
         task.username == oldTask.username &&
